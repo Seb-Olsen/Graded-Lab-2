@@ -139,89 +139,92 @@ def showGraphDynamic(G,data,positions,filename):
 
 
 
-def showData(data,filename):
-    data=np.array(data)
-    t=list(range(len(data)))
-    #slice the coloumns of the given matrix (note that the input is just a matrix 3Xn)
-    y=data[:,0]
-    y1=data[:,1]
-    y2=data[:,2]
-    
-    #create the slider 
+def showData(data, filename, title="SI Model Data"): # <-- Added 'title' parameter with a default
+    data = np.array(data)
+    t = list(range(len(data)))
+    # slice the coloumns of the given matrix (note that the input is just a matrix 3Xn)
+    y = data[:, 0] # Susceptible (U)
+    y1 = data[:, 1] # Infected (A)
+    y2 = data[:, 2] # Vaccinated/Removed (B)
+
+    # Create the slider
     sliders = [{
-                    "pad": {"b": 10, "t": 60},
-                    "len": 0.9,
-                    "x": 0.1,
-                    "y": 0,
-                    "steps": [
-                        {
-                            "args": [[str(k)], {
-                "frame": {"duration": 0},
-                "mode": "immediate",
-                "fromcurrent": True,
-                "transition": {"duration": 0, "easing": "linear"},
-            }],
-                            "label": str(k),
-                            "method": "animate",
-                        }
-                        for k in range(len(t))
-                    ],
-                }
-            ]
+        "pad": {"b": 10, "t": 60},
+        "len": 0.9,
+        "x": 0.1,
+        "y": 0,
+        "steps": [
+            {
+                "args": [[str(k)], {
+                    "frame": {"duration": 0},
+                    "mode": "immediate",
+                    "fromcurrent": True,
+                    "transition": {"duration": 0, "easing": "linear"},
+                }],
+                "label": str(k), # Label for slider tick
+                "method": "animate",
+            }
+            for k in range(len(t))
+        ],
+    }]
+
     # Create figure
     fig = {
-        'data':[
-            #trace for S individuals
-            {'x':t, 'y':y,
-                         'mode':"lines",
-                         'name':"U",
-                         'line':dict(width=2, color="blue")},
-             #trace for I individuals
-              {'x':t, 'y':y1,
-                         'mode':"lines",
-                         'name':"A",
-                         'line':dict(width=2, color="red")},
-               #trace for R individuals
-               {'x':t, 'y':y2,
-                         'mode':"lines",
-                         'name':"B",
-                         'line':dict(width=2, color="green")},
-               #traces for the moving dots
-               {
-                'x':[0],
-                'y':[data[0][0]],
-                'mode':"markers",
-                'marker':dict(color="blue", size=10)}, 
-               {
-                'x':[0],
-                'y':[data[0][1]],
-                'mode':"markers",
-                'marker':dict(color="red", size=10)},
-               {
-                'x':[0],
-                'y':[data[0][2]],
-                'mode':"markers",
-                'marker':dict(color="green", size=10)}],
-        'layout':{
-            'xaxis':dict(range=[0, len(t)], autorange=False, zeroline=False),
-            'yaxis':dict(range=[-1, max(y)+10], autorange=False, zeroline=False),
-            'title_text':filename+" Model Data",
-            'hovermode':"closest",
+        'data': [
+            # trace for U individuals
+            {'x': t, 'y': y,
+             'mode': "lines",
+             'name': "U (Susceptible)",
+             'line': dict(width=2, color="blue")},
+            # trace for A individuals
+            {'x': t, 'y': y1,
+             'mode': "lines",
+             'name': "A (Infected)",
+             'line': dict(width=2, color="red")},
+            # trace for B individuals
+            {'x': t, 'y': y2,
+             'mode': "lines",
+             'name': "B (Vaccinated/Removed)",
+             'line': dict(width=2, color="green")},
+            # traces for the moving dots
+            {
+                'x': [0],
+                'y': [data[0][0]],
+                'mode': "markers",
+                'name': "U at t", # Added name for clarity in legend if shown
+                'marker': dict(color="blue", size=10)},
+            {
+                'x': [0],
+                'y': [data[0][1]],
+                'mode': "markers",
+                'name': "A at t", # Added name
+                'marker': dict(color="red", size=10)},
+            {
+                'x': [0],
+                'y': [data[0][2]],
+                'mode': "markers",
+                'name': "B at t", # Added name
+                'marker': dict(color="green", size=10)}],
+        'layout': {
+            'xaxis': dict(range=[0, len(t)], autorange=False, zeroline=False, title="Time Step"), # Added axis title
+            'yaxis': dict(range=[-1, max(y) + 10 if max(y)>0 else 10], autorange=False, zeroline=False, title="Number of Nodes"), # Added axis title, handle max(y)=0 case
+            'title_text': title, # <-- Use the passed 'title' parameter for the main title
+            'hovermode': "closest",
             'updatemenus': [
                 {
                     "buttons": [
                         {
-                            "args": [None,{"frame": {"duration": 500, "redraw": False},
-                                "fromcurrent": True, "transition": {"duration": 300,
-                                                                    "easing": "quadratic-in-out"}}],
-                            "label": "&#9654;", # play symbol
+                            "args": [None, {"frame": {"duration": 500, "redraw": False},
+                                            "fromcurrent": True, "transition": {"duration": 300,
+                                                                               "easing": "quadratic-in-out"}}],
+                            "label": "▶",  # play symbol
                             "method": "animate",
                         },
                         {
-                            "args": [[None],{"frame": {"duration": 0, "redraw": False},
-                                  "mode": "immediate",
-                                  "transition": {"duration": 0}}],
-                            "label": "&#9612;&#9612;",#"&#9724;", # pause symbol
+                            "args": [[None], {"frame": {"duration": 0, "redraw": False},
+                                              "mode": "immediate",
+                                              "transition": {"duration": 0}}],
+                            "label": "▌▌",  # pause symbol
                             "method": "animate",
                         },
                     ],
@@ -231,45 +234,38 @@ def showData(data,filename):
                     "x": 0.1,
                     "y": 0,
                 }
-             ],
-            'sliders':sliders},
-        #initialization of the frame list
-        'frames':[{
-            'data':[{'x':t, 'y':y,
-                         'mode':"lines",
-                         'name':"U",
-                         'line':{'width':2, 'color':"blue"}},
-                {'x':t, 'y':y1,
-                         'mode':"lines",
-                         'name':"A",
-                         'line':{'width':2, 'color':"red"}},
-                {'x':t, 'y':y2,
-                         'name':"B",
-                         'mode':"lines",
-                         'line':{'width':2, 'color':"green"}},
+            ],
+            'sliders': sliders,
+            'legend_title_text':'State' # Added legend title
+            },
+        # initialization of the frame list
+        'frames': [{
+            'data': [
+                # Lines (remain same in frames, could optimize by removing if static)
+                 {'x':t, 'y':y},
+                 {'x':t, 'y':y1},
+                 {'x':t, 'y':y2},
+                 # Moving Dots (update position in each frame)
                 {
-                'x':[k],
-                'y':[data[k][0]],
-                'mode':"markers",
-                'name':"U at t",
-                'marker':{'color':"blue", 'size':10}}, 
-                {'x':[k],
-                'y':[data[k][1]],
-                'mode':"markers",
-                'name':"A at t",
-                'marker':{'color':"red", 'size':10}},
-                {'x':[k],
-                'y':[data[k][2]],
-                'mode':"markers",
-                'name':"B at t",
-                'marker':{'color':"green", 'size':10}}
+                    'x': [k], 'y': [data[k][0]],
+                    'mode': "markers", 'marker': {'color': "blue", 'size': 10}},
+                {
+                    'x': [k], 'y': [data[k][1]],
+                    'mode': "markers", 'marker': {'color': "red", 'size': 10}},
+                {
+                    'x': [k], 'y': [data[k][2]],
+                    'mode': "markers", 'marker': {'color': "green", 'size': 10}}
                 ],
-            'layout':{
-                    'title':filename+" Model Data",
-                    'titlefont_size':16},
-            'name':str(k)}          
-            for k in range(len(t))],
+            # Use name to reference the data trace index if needed, but here we redefine data
+            'layout': {
+                 # <-- Update frame title to include main title + dynamic info
+                'title': f"{title}<br>Time: {k} | U: {data[k][0]} | A: {data[k][1]} | B: {data[k][2]}"
+                },
+            'name': str(k) # Frame name must be a string
+            }
+            for k in range(len(t))], # Iterate through each time step for frames
     }
-    plotly.offline.plot(fig, filename=filename+"_data.html", auto_open=True, validate=False)
-
-
+    # Make sure the figure object is correctly structured before plotting
+    fig_obj = go.Figure(fig)
+    # Save to HTML
+    plotly.offline.plot(fig_obj, filename=filename + "_data.html", auto_open=True, validate=True)
